@@ -147,6 +147,31 @@ class ExecutePythonCode:
         return (result,)
 
 
+class ExecutePythonCodeReturnInt:
+    @classmethod
+    def INPUT_TYPES(cls) -> Mapping[str, Any]:
+        return {"required": {},
+                "optional": {
+                        "code": ("STRING", {"multiline": True, "dynamicPrompts": False}),
+                        "argument1": (anyType,),
+                        "argument2": (anyType,)
+                    }
+                }
+
+    RETURN_TYPES = ("INT",)
+    FUNCTION = "process"
+    CATEGORY = "VWo50/Util"
+    OUTPUT_NODE = True
+    DESCRIPTION = "动态执行python代码"
+
+    def process(self, code: str, argument1: Any = None, argument2: Any = None) -> tuple[Any]:
+        result = ""
+        local_vars = {"argument1": argument1, "argument2": argument2}
+        exec(code, {}, local_vars)
+        result = local_vars.get("result", None)
+        return (int(result),)
+
+
 NODE_CLASS_MAPPINGS = {
     "VWo50 Get Type": GetType,
     "VWo50 Get Element Type": GetElementType,
@@ -154,4 +179,5 @@ NODE_CLASS_MAPPINGS = {
     "VWo50 Get Mask For IPAdapter Image": GetMaskForIPAdapterImage,
     "VWo50 Get Info of torch Tensor": GetInfoOfTorchTensor,
     "VWo50 Execute Python Code": ExecutePythonCode,
+    "VWo50 Execute Python Code Return Int": ExecutePythonCodeReturnInt,
 }
