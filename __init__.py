@@ -1,4 +1,4 @@
-from .vWo50Util import NODE_CLASS_MAPPINGS as util_NCM
+from .vwo50 import NODE_CLASS_MAPPINGS as util_NCM
 
 
 NODE_CLASS_MAPPINGS = {

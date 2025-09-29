@@ -121,8 +121,7 @@ class GetMaskForImageScaleToFitRect:
     RETURN_TYPES = ("MASK",)
     FUNCTION = "process"
     CATEGORY = "VWo50/Util"
-    DESCRIPTION = "在一个rectWidth x rectHeight的矩形框内，把一个图片以scale to fit的方式调整大小时" \
-                  "获取这个图片矩形框的蒙版"
+    DESCRIPTION = "在一个宽为rectWidth，高为rectHeight的矩形框内，把一个图片以scale to fit的方式调整大小，获取这个图片矩形框的蒙版"
 
     def process(self, image: torch.Tensor, rect_width: int, rect_height: int) -> tuple[torch.Tensor]:
         if not isinstance(image, torch.Tensor):
