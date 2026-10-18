@@ -2,7 +2,7 @@ import { app } from '../../../scripts/app.js'
 
 app.registerExtension({
     // 名字和其它节点的不重复就行
-    name: "VWo50GetNodeName",
+    name: "VWo50 Extension",
 
     // 对每种节点类型都会调用一次该函数
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
@@ -87,6 +87,49 @@ app.registerExtension({
                     }
                     this.updateUpstreamInfo();
                 };
+            };
+        }
+
+        // 需要自动增加参数的节点
+        if (nodeData.name === "VWo50 Execute Python Code" ||
+            nodeData.name === "VWo50 Make List And Get Element At Index" ||
+            nodeData.name === "VWo50 Make Dict And Get Element With Key") {
+            const onConnectionsChange = nodeType.prototype.onConnectionsChange;
+            nodeType.prototype.onConnectionsChange = function (type, index, connected, link_info) {
+                if (onConnectionsChange) onConnectionsChange.apply(this, arguments);
+
+                // type === 1 是输入连接改变
+                if (type === 1) {
+                    // 1. 找到所有“input_”开头的输入放进数组里
+                    let inputArr = [];
+
+                    for (let i = 0; i < this.inputs.length; i++) {
+                        const name = this.inputs[i].name;
+                        if (name && name.startsWith("input_")) {
+                            inputArr.push(i);
+                        }
+                    }
+
+                    // 2. 如果最后一个输入已连接，则增加一个新的
+                    let lastInputIndex = inputArr[inputArr.length - 1]; // 至少会有一个，所以这里不担心数组越界
+                    let lastInput = this.inputs[lastInputIndex];
+                    if (lastInput.link !== null) {
+                        this.addInput(`input_${inputArr.length + 1}`, "*");
+                    }
+
+                    // 3. 如果末尾有两个未连接的输入，删掉后面那个
+                    if (inputArr.length > 1) {
+                        for (let i = inputArr.length - 1; i > 0; i--) {
+                            let input1 = this.inputs[inputArr[i]]
+                            let input2 = this.inputs[inputArr[i-1]]
+                            if(input1.link === null && input2.link === null){
+                                this.removeInput(inputArr[i]);
+                            }else{
+                                break;
+                            }
+                        }
+                    }
+                }
             };
         }
     }

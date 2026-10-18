@@ -9,10 +9,32 @@ class VWo50ToBool:
     def VALIDATE_INPUTS(s, input_types):
         return True
 
-    RETURN_TYPES = ("BOOL",)
+    RETURN_TYPES = ("BOOLEAN",)
     FUNCTION = "process"
     CATEGORY = "VWo50/Type"
     DESCRIPTION = "把类型转换为BOOL"
+
+    def process(self, any_object):
+        return (bool(any_object),)
+
+
+class VWo50ToCombo:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {"any_object": ("*",)},
+        }
+
+    @classmethod
+    def VALIDATE_INPUTS(s, input_types):
+        return True
+
+    RETURN_TYPES = ("COMBO",)
+    FUNCTION = "process"
+    CATEGORY = "VWo50/Type"
+    DESCRIPTION = (
+        "把类型转换为COMBO，对应的python类型是list[str]，第一个str即选中的选项"
+    )
 
     def process(self, any_object):
         return (bool(any_object),)
@@ -240,6 +262,7 @@ class VWo50ToUpscaleModel:
 
 NODE_CLASS_MAPPINGS = {
     "VWo50 To Bool": VWo50ToBool,
+    "VWo50 To Combo": VWo50ToCombo,
     "VWo50 To Int": VWo50ToInt,
     "VWo50 To Float": VWo50ToFloat,
     "VWo50 To String": VWo50ToString,

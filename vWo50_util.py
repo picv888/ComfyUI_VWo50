@@ -175,58 +175,61 @@ class VWo50GetInfoOfTorchTensor:
 
 
 class VWo50ExecutePythonCode:
-    @classmethod
-    def INPUT_TYPES(s) -> Mapping[str, Any]:
-        return {
-            "required": {},
-            "optional": {
-                "code": ("STRING", {"multiline": True, "dynamicPrompts": False}),
-                "argument1": ("*", {}),
-                "argument2": ("*", {}),
-                "argument3": ("*", {}),
-            },
-        }
-
-    @classmethod
-    def VALIDATE_INPUTS(cls, input_types):
-        return True
-
     RETURN_TYPES = ("*", "*")
     RETURN_NAMES = ("result1", "result2")
     FUNCTION = "process"
     CATEGORY = "VWo50/Utils"
     DESCRIPTION = "动态执行python代码"
 
+    @classmethod
+    def INPUT_TYPES(s) -> Mapping[str, Any]:
+        return {
+            "required": {},
+            "optional": {
+                "code": ("STRING", {"multiline": True, "dynamicPrompts": False}),
+                "input_1": ("*", {}),
+            },
+        }
+
+    @classmethod
+    def VALIDATE_INPUTS(cls, input_types):
+        return True
+
     def process(
         self,
         code: str,
-        argument1: Any = None,
-        argument2: Any = None,
-        argument3: Any = None,
-    ) -> tuple[Any, Any]:
+        **kwargs,
+    ):
+        # 收集所有 input_1, input_2, input_3...
+        inputs: dict = {}
+        for k, v in sorted(kwargs.items()):
+            if k.startswith("input_"):
+                inputs[k] = v
         result1 = ""
         result2 = ""
         local_vars = {
-            "argument1": argument1,
-            "argument2": argument2,
-            "argument3": argument3,
+            **inputs,
         }
         exec(code, {}, local_vars)
         result1 = local_vars.get("result1", None)
         result2 = local_vars.get("result2", None)
-        return result1, result2
+        return (result1, result2)
 
 
-class VWo50ExecutePythonCodeReturnBool:
+class VWo50MakeListAndGetElementAtIndex:
+    RETURN_TYPES = ("*", "*")
+    RETURN_NAMES = ("list", "element")
+    FUNCTION = "process"
+    CATEGORY = "VWo50/Utils"
+    DESCRIPTION = "把输入的所有参数组合成一个List，根据index获取元素"
+
     @classmethod
-    def INPUT_TYPES(cls) -> Mapping[str, Any]:
+    def INPUT_TYPES(s):
         return {
-            "required": {},
+            "required": {"index": ("INT", {"default": 0, "min": 0, "max": 999999})},
             "optional": {
-                "code": ("STRING", {"multiline": True, "dynamicPrompts": False}),
-                "argument1": ("*",),
-                "argument2": ("*",),
-                "argument3": ("*",),
+                # 格式："input_{i}": (类型, 默认)
+                "input_1": ("*", {}),
             },
         }
 
@@ -234,163 +237,19 @@ class VWo50ExecutePythonCodeReturnBool:
     def VALIDATE_INPUTS(cls, input_types):
         return True
 
-    RETURN_TYPES = ("BOOLEAN", "BOOLEAN")
-    RETURN_NAMES = ("result1", "result2")
-    FUNCTION = "process"
-    CATEGORY = "VWo50/Utils"
-    DESCRIPTION = "动态执行python代码"
-
     def process(
         self,
-        code: str,
-        argument1: Any = None,
-        argument2: Any = None,
-        argument3: Any = None,
-    ) -> tuple[bool, bool]:
-        result1 = True
-        result2 = True
-        local_vars = {
-            "argument1": argument1,
-            "argument2": argument2,
-            "argument3": argument3,
-        }
-        exec(code, {}, local_vars)
-        result1 = local_vars.get("result1", False)
-        result2 = local_vars.get("result2", False)
-        return bool(result1), bool(result2)
-
-
-class VWo50ExecutePythonCodeReturnInt:
-    @classmethod
-    def INPUT_TYPES(cls) -> Mapping[str, Any]:
-        return {
-            "required": {},
-            "optional": {
-                "code": ("STRING", {"multiline": True, "dynamicPrompts": False}),
-                "argument1": ("*",),
-                "argument2": ("*",),
-                "argument3": ("*",),
-            },
-        }
-
-    @classmethod
-    def VALIDATE_INPUTS(cls, input_types):
-        return True
-
-    RETURN_TYPES = ("INT", "INT")
-    RETURN_NAMES = ("result1", "result2")
-    FUNCTION = "process"
-    CATEGORY = "VWo50/Utils"
-    DESCRIPTION = "动态执行python代码"
-
-    def process(
-        self,
-        code: str,
-        argument1: Any = None,
-        argument2: Any = None,
-        argument3: Any = None,
-    ) -> tuple[int, int]:
-        result1 = 0
-        result2 = 0
-        local_vars = {
-            "argument1": argument1,
-            "argument2": argument2,
-            "argument3": argument3,
-        }
-        exec(code, {}, local_vars)
-        result1 = local_vars.get("result1", 0)
-        result2 = local_vars.get("result2", 0)
-        return int(result1), int(result2)
-
-
-class VWo50ExecutePythonCodeReturnFloat:
-    @classmethod
-    def INPUT_TYPES(cls) -> Mapping[str, Any]:
-        return {
-            "required": {},
-            "optional": {
-                "code": ("STRING", {"multiline": True, "dynamicPrompts": False}),
-                "argument1": ("*",),
-                "argument2": ("*",),
-                "argument3": ("*",),
-            },
-        }
-
-    @classmethod
-    def VALIDATE_INPUTS(cls, input_types):
-        return True
-
-    RETURN_TYPES = ("FLOAT", "FLOAT")
-    RETURN_NAMES = ("result1", "result2")
-    FUNCTION = "process"
-    CATEGORY = "VWo50/Utils"
-    DESCRIPTION = "动态执行python代码"
-
-    def process(
-        self,
-        code: str,
-        argument1: Any = None,
-        argument2: Any = None,
-        argument3: Any = None,
-    ) -> tuple[float, float]:
-        result1 = 0.0
-        result2 = 0.0
-        local_vars = {
-            "argument1": argument1,
-            "argument2": argument2,
-            "argument3": argument3,
-        }
-        exec(code, {}, local_vars)
-        result1 = local_vars.get("result1", "nan")
-        result2 = local_vars.get("result2", "nan")
-        return float(result1), float(result2)
-
-
-class VWo50ExecutePythonCodeReturnString:
-    @classmethod
-    def INPUT_TYPES(cls) -> Mapping[str, Any]:
-        return {
-            "required": {},
-            "optional": {
-                "code": ("STRING", {"multiline": True, "dynamicPrompts": False}),
-                "argument1": ("*",),
-                "argument2": ("*",),
-                "argument3": ("*",),
-            },
-        }
-
-    @classmethod
-    def VALIDATE_INPUTS(cls, input_types):
-        return True
-
-    RETURN_TYPES = ("STRING", "STRING")
-    RETURN_NAMES = ("result1", "result2")
-    FUNCTION = "process"
-    CATEGORY = "VWo50/Utils"
-    DESCRIPTION = "动态执行python代码"
-
-    def process(
-        self,
-        code: str,
-        argument1: Any = None,
-        argument2: Any = None,
-        argument3: Any = None,
-    ) -> tuple[float, float]:
-        result1 = ""
-        result2 = ""
-        local_vars = {
-            "argument1": argument1,
-            "argument2": argument2,
-            "argument3": argument3,
-        }
-        exec(code, {}, local_vars)
-        result1 = local_vars.get("result1", "")
-        result2 = local_vars.get("result2", "")
-        return str(result1), str(result2)
-
-
-import comfy
-import torch
+        index,
+        **kwargs,
+    ):
+        # 收集所有 input_1, input_2, input_3...
+        inputs: list = []
+        for k, v in sorted(kwargs.items()):
+            if k.startswith("input_"):
+                inputs.append(v)
+        print(f"list有一共有{len(inputs)}个元素，你选择了第{index}个（从下标0开始）")
+        element = inputs[index] if index < len(inputs) else None
+        return (inputs, element)
 
 
 class VWo50GetNodeName:
@@ -472,10 +331,7 @@ NODE_CLASS_MAPPINGS = {
     "VWo50 Get Mask For Image Scale To Fit Rect": VWo50GetMaskForImageScaleToFitRect,
     "VWo50 Get Info of torch Tensor": VWo50GetInfoOfTorchTensor,
     "VWo50 Execute Python Code": VWo50ExecutePythonCode,
-    "VWo50 Execute Python Code Return Bool": VWo50ExecutePythonCodeReturnBool,
-    "VWo50 Execute Python Code Return Int": VWo50ExecutePythonCodeReturnInt,
-    "VWo50 Execute Python Code Return Float": VWo50ExecutePythonCodeReturnFloat,
-    "VWo50 Execute Python Code Return String": VWo50ExecutePythonCodeReturnString,
+    "VWo50 Make List And Get Element At Index": VWo50MakeListAndGetElementAtIndex,
     "VWo50 Get Node Name": VWo50GetNodeName,
     "VWo50 SwitchNode": VWo50SwitchNode,
     "VWo50 CaseNode": VWo50CaseNode,
