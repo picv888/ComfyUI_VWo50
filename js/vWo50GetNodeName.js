@@ -93,7 +93,7 @@ app.registerExtension({
         // 需要自动增加参数的节点
         if (nodeData.name === "VWo50 Execute Python Code" ||
             nodeData.name === "VWo50 Make List And Get Element At Index" ||
-            nodeData.name === "VWo50 Make Dict And Get Element With Key") {
+            nodeData.name === "VWo50 Switch") {
             const onConnectionsChange = nodeType.prototype.onConnectionsChange;
             nodeType.prototype.onConnectionsChange = function (type, index, connected, link_info) {
                 if (onConnectionsChange) onConnectionsChange.apply(this, arguments);
@@ -114,17 +114,21 @@ app.registerExtension({
                     let lastInputIndex = inputArr[inputArr.length - 1]; // 至少会有一个，所以这里不担心数组越界
                     let lastInput = this.inputs[lastInputIndex];
                     if (lastInput.link !== null) {
-                        this.addInput(`input_${inputArr.length + 1}`, "*");
+                        if (nodeData.name === "VWo50 Switch") {
+                            this.addInput(`input_${inputArr.length}`, "*", { lazy: true });  // 标记为lazy
+                        } else {
+                            this.addInput(`input_${inputArr.length}`, "*");
+                        }
                     }
 
                     // 3. 如果末尾有两个未连接的输入，删掉后面那个
                     if (inputArr.length > 1) {
                         for (let i = inputArr.length - 1; i > 0; i--) {
                             let input1 = this.inputs[inputArr[i]]
-                            let input2 = this.inputs[inputArr[i-1]]
-                            if(input1.link === null && input2.link === null){
+                            let input2 = this.inputs[inputArr[i - 1]]
+                            if (input1.link === null && input2.link === null) {
                                 this.removeInput(inputArr[i]);
-                            }else{
+                            } else {
                                 break;
                             }
                         }

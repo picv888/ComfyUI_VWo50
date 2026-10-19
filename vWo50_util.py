@@ -187,7 +187,7 @@ class VWo50ExecutePythonCode:
             "required": {},
             "optional": {
                 "code": ("STRING", {"multiline": True, "dynamicPrompts": False}),
-                "input_1": ("*", {}),
+                "input_0": ("*", {}),
             },
         }
 
@@ -200,11 +200,8 @@ class VWo50ExecutePythonCode:
         code: str,
         **kwargs,
     ):
-        # 收集所有 input_1, input_2, input_3...
-        inputs: dict = {}
-        for k, v in sorted(kwargs.items()):
-            if k.startswith("input_"):
-                inputs[k] = v
+        # 收集所有 input
+        inputs: dict = {k: v for k, v in kwargs.items() if k.startswith("input_")}
         result1 = ""
         result2 = ""
         local_vars = {
@@ -224,12 +221,12 @@ class VWo50MakeListAndGetElementAtIndex:
     DESCRIPTION = "把输入的所有参数组合成一个List，根据index获取元素"
 
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(cls):
         return {
             "required": {"index": ("INT", {"default": 0, "min": 0, "max": 999999})},
             "optional": {
                 # 格式："input_{i}": (类型, 默认)
-                "input_1": ("*", {}),
+                "input_0": ("*", {}),
             },
         }
 
@@ -242,14 +239,61 @@ class VWo50MakeListAndGetElementAtIndex:
         index,
         **kwargs,
     ):
-        # 收集所有 input_1, input_2, input_3...
-        inputs: list = []
-        for k, v in sorted(kwargs.items()):
-            if k.startswith("input_"):
-                inputs.append(v)
+        input_items = sorted(
+            [(k, v) for k, v in kwargs.items() if k.startswith("input_")],
+            key=lambda kv: int(kv[0].split("_", 1)[1]),
+        )
+        inputs = [v for _, v in input_items]
         print(f"list有一共有{len(inputs)}个元素，你选择了第{index}个（从下标0开始）")
         element = inputs[index] if index < len(inputs) else None
         return (inputs, element)
+
+
+class VWo50Switch:
+    RETURN_TYPES = ("*",)
+    RETURN_NAMES = ("output",)
+    FUNCTION = "process"
+    CATEGORY = "VWo50/Utils"
+    DESCRIPTION = "选择一个上游分支执行，其它分支都不会执行"
+    
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        optional = {}
+        # 预先声明足够多的 lazy 输入（数量可按需调整）
+        for i in range(50):
+            optional[f"input_{i}"] = ("*", {"lazy": True})
+        return {
+            "required": {"index": ("INT", {"default": 0, "min": 0, "max": 999999})},
+            "optional": optional,
+        }
+
+    @classmethod
+    def VALIDATE_INPUTS(cls, input_types):
+        return True
+
+    # 根据 index 决定需要求值哪个输入
+    def check_lazy_status(
+        self,
+        index,
+        **kwargs,
+    ):
+        target_input = f"input_{index}"
+        # 如果目标输入尚未被求值（为 None），则请求求值它
+        if kwargs.get(target_input) is None:
+            return [target_input]
+        # 否则，不需要再求值任何其他 lazy 输入
+        return []
+
+    def process(
+        self,
+        index,
+        **kwargs,
+    ):
+        target = f"input_{index}"
+        element = kwargs.get(target, None)
+        print(f"VWo50Switch节点: 选择 {target}")
+        return (element,)
 
 
 class VWo50GetNodeName:
@@ -276,54 +320,6 @@ class VWo50GetNodeName:
         return (any_input,)
 
 
-class VWo50SwitchNode:
-    @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "input1": ("INT",),
-                "input2": ("ANY",),
-                "switchName": ("STRING", {"default": "Switch1"}),
-            }
-        }
-
-    RETURN_TYPES = ("ANY",)
-    RETURN_NAMES = ("output",)
-    FUNCTION = "switch_func"
-    CATEGORY = "VWo50/Utils"
-
-    def switch_func(self, input1, input2, switchName):
-        self.case = input1
-        self.obj = input2
-        self.switchName = switchName
-        return (input2,)
-
-
-class VWo50CaseNode:
-    @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "input1": ("ANY",),
-                "input2": ("ANY",),
-                "switchName": ("STRING", {"default": "Switch1"}),
-                "case": ("INT", {"default": 0}),
-            }
-        }
-
-    RETURN_TYPES = ("ANY", "ANY")
-    RETURN_NAMES = ("output1", "output2")
-    FUNCTION = "case_func"
-    CATEGORY = "VWo50/Utils"
-
-    def case_func(self, input1, input2, switchName, case):
-        self.obj = input1
-        self.obj2 = input2
-        self.switchName = switchName
-        self.case = case
-        return (input1, input2)
-
-
 NODE_CLASS_MAPPINGS = {
     "VWo50 Get Type": VWo50GetType,
     "VWo50 Get Element Type": VWo50GetElementType,
@@ -332,7 +328,6 @@ NODE_CLASS_MAPPINGS = {
     "VWo50 Get Info of torch Tensor": VWo50GetInfoOfTorchTensor,
     "VWo50 Execute Python Code": VWo50ExecutePythonCode,
     "VWo50 Make List And Get Element At Index": VWo50MakeListAndGetElementAtIndex,
+    "VWo50 Switch": VWo50Switch,
     "VWo50 Get Node Name": VWo50GetNodeName,
-    "VWo50 SwitchNode": VWo50SwitchNode,
-    "VWo50 CaseNode": VWo50CaseNode,
 }

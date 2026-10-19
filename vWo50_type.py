@@ -1,12 +1,12 @@
 class VWo50ToBool:
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(cls):
         return {
             "required": {"any_object": ("*",)},
         }
 
     @classmethod
-    def VALIDATE_INPUTS(s, input_types):
+    def VALIDATE_INPUTS(cls, input_types):
         return True
 
     RETURN_TYPES = ("BOOLEAN",)
@@ -20,13 +20,13 @@ class VWo50ToBool:
 
 class VWo50ToCombo:
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(cls):
         return {
             "required": {"any_object": ("*",)},
         }
 
     @classmethod
-    def VALIDATE_INPUTS(s, input_types):
+    def VALIDATE_INPUTS(cls, input_types):
         return True
 
     RETURN_TYPES = ("COMBO",)
@@ -42,13 +42,13 @@ class VWo50ToCombo:
 
 class VWo50ToInt:
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(cls):
         return {
             "required": {"any_object": ("*",)},
         }
 
     @classmethod
-    def VALIDATE_INPUTS(s, input_types):
+    def VALIDATE_INPUTS(cls, input_types):
         return True
 
     RETURN_TYPES = ("INT",)
@@ -62,13 +62,13 @@ class VWo50ToInt:
 
 class VWo50ToFloat:
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(cls):
         return {
             "required": {"any_object": ("*",)},
         }
 
     @classmethod
-    def VALIDATE_INPUTS(s, input_types):
+    def VALIDATE_INPUTS(cls, input_types):
         return True
 
     RETURN_TYPES = ("FLOAT",)
@@ -82,13 +82,13 @@ class VWo50ToFloat:
 
 class VWo50ToString:
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(cls):
         return {
             "required": {"any_object": ("*",)},
         }
 
     @classmethod
-    def VALIDATE_INPUTS(s, input_types):
+    def VALIDATE_INPUTS(cls, input_types):
         return True
 
     RETURN_TYPES = ("STRING",)
@@ -102,13 +102,13 @@ class VWo50ToString:
 
 class VWo50ToImage:
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(cls):
         return {
             "required": {"any_object": ("*",)},
         }
 
     @classmethod
-    def VALIDATE_INPUTS(s, input_types):
+    def VALIDATE_INPUTS(cls, input_types):
         return True
 
     RETURN_TYPES = ("IMAGE",)
@@ -122,13 +122,13 @@ class VWo50ToImage:
 
 class VWo50ToMask:
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(cls):
         return {
             "required": {"any_object": ("*",)},
         }
 
     @classmethod
-    def VALIDATE_INPUTS(s, input_types):
+    def VALIDATE_INPUTS(cls, input_types):
         return True
 
     RETURN_TYPES = ("MASK",)
@@ -142,13 +142,13 @@ class VWo50ToMask:
 
 class VWo50ToLatent:
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(cls):
         return {
             "required": {"any_object": ("*",)},
         }
 
     @classmethod
-    def VALIDATE_INPUTS(s, input_types):
+    def VALIDATE_INPUTS(cls, input_types):
         return True
 
     RETURN_TYPES = ("LATENT",)
@@ -162,13 +162,13 @@ class VWo50ToLatent:
 
 class VWo50ToVae:
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(cls):
         return {
             "required": {"any_object": ("*",)},
         }
 
     @classmethod
-    def VALIDATE_INPUTS(s, input_types):
+    def VALIDATE_INPUTS(cls, input_types):
         return True
 
     RETURN_TYPES = ("VAE",)
@@ -182,13 +182,13 @@ class VWo50ToVae:
 
 class VWo50ToModel:
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(cls):
         return {
             "required": {"any_object": ("*",)},
         }
 
     @classmethod
-    def VALIDATE_INPUTS(s, input_types):
+    def VALIDATE_INPUTS(cls, input_types):
         return True
 
     RETURN_TYPES = ("MODEL",)
@@ -202,13 +202,13 @@ class VWo50ToModel:
 
 class VWo50ToClip:
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(cls):
         return {
             "required": {"any_object": ("*",)},
         }
 
     @classmethod
-    def VALIDATE_INPUTS(s, input_types):
+    def VALIDATE_INPUTS(cls, input_types):
         return True
 
     RETURN_TYPES = ("CLIP",)
@@ -222,13 +222,13 @@ class VWo50ToClip:
 
 class VWo50ToConditioning:
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(cls):
         return {
             "required": {"any_object": ("*",)},
         }
 
     @classmethod
-    def VALIDATE_INPUTS(s, input_types):
+    def VALIDATE_INPUTS(cls, input_types):
         return True
 
     RETURN_TYPES = ("CONDITIONING",)
@@ -242,13 +242,13 @@ class VWo50ToConditioning:
 
 class VWo50ToUpscaleModel:
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(cls):
         return {
             "required": {"any_object": ("*",)},
         }
 
     @classmethod
-    def VALIDATE_INPUTS(s, input_types):
+    def VALIDATE_INPUTS(cls, input_types):
         return True
 
     RETURN_TYPES = ("UPSCALE_MODEL",)
