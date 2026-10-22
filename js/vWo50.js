@@ -7,6 +7,7 @@ app.registerExtension({
     // 对每种节点类型都会调用一次该函数
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
         // nodeData.name是节点的名字，和后端中 NODE_CLASS_MAPPINGS 字典的键名一样
+        // VWo50 Get Node Name 节点
         if (nodeData.name === "VWo50 Get Node Name") {
             // 重写onNodeCreated来添加自定义行为
             const onNodeCreated = nodeType.prototype.onNodeCreated;
@@ -90,7 +91,7 @@ app.registerExtension({
             };
         }
 
-        // 需要自动增加参数的节点
+        // 需要自动增加参数的节点 
         if (nodeData.name === "VWo50 Execute Python Code" ||
             nodeData.name === "VWo50 Make List And Get Element At Index" ||
             nodeData.name === "VWo50 Switch") {
@@ -134,6 +135,84 @@ app.registerExtension({
                         }
                     }
                 }
+            };
+        }
+
+        // VWo50 Preview Image 节点
+        if (nodeData.name === "VWo50 Preview Image") {
+            // 节点创建时：添加隐藏的 mask_file widget -----
+            const onNodeCreated = nodeType.prototype.onNodeCreated;
+            nodeType.prototype.onNodeCreated = function () {
+                if (onNodeCreated) onNodeCreated.apply(this, arguments);
+                // 找到后端 INPUT_TYPES 中定义的 mask_file widget
+                const maskWidget = this.widgets?.find(w => w.name === "mask_file");
+                // const has_preview_image_Widget = this.widgets?.find(w => w.name === "has_preview_image");
+                if (maskWidget) {
+                    // 使用官方推荐方式隐藏但保持可序列化
+                    maskWidget.hidden = true;
+                    maskWidget.options = maskWidget.options || {};
+                    maskWidget.options.hidden = true;
+                    maskWidget.computeSize = () => [0, -4]; // 折叠尺寸
+                    this._maskFileWidget = maskWidget;
+                }
+                // if(has_preview_image_Widget){
+                //     this._has_preview_image_widget = has_preview_image_Widget
+                // }
+            };
+
+            // ----- 2. onExecuted 渲染预览图 (保持不变) -----
+            const onExecuted = nodeType.prototype.onExecuted;
+            nodeType.prototype.onExecuted = function (message) {
+                if (onExecuted) onExecuted.apply(this, arguments);
+                const uiData = message?.ui || message;
+                const images = uiData?.images;
+                if (!images || images.length === 0) return;
+
+                this.imgs = images.map((info) => {
+                    const params = new URLSearchParams({
+                        filename: info.filename,
+                        type: info.type || "temp",
+                        subfolder: info.subfolder || "",
+                    });
+                    return `/view?${params.toString()}`;
+                });
+                // this._has_preview_image_widget.value = true
+                this.setDirtyCanvas(true, true);
+            };
+
+            // ----- 3. 核心：拦截 fetch，捕获 /upload/image 的响应 -----
+            const originalFetch = window.fetch;
+            window.fetch = async function (...args) {
+                const [resource, config] = args;
+                const url = typeof resource === 'string' ? resource : resource.url;
+                
+                // 调用原本的 fetch
+                const response = await originalFetch.apply(this, args);
+
+                // 只处理发往 /upload/image 的请求
+                if (url && url.includes('/upload/image') && config?.method === 'POST') {
+                    try {
+                        // 克隆响应，避免消耗原始数据流
+                        const clonedResponse = response.clone();
+                        const data = await clonedResponse.json();
+                        
+                        // data 格式类似: { name: "clipspace-mask-xxx.png", subfolder: "clipspace", type: "input" }
+                        if (data && data.name) {
+                            // 找到当前选中的VWo50 Preview Image节点
+                            const selected = Object.values(app.canvas?.selected_nodes || {});
+                            const activeNode = selected.find(n => n.type === "VWo50 Preview Image");
+                            if (activeNode && activeNode._maskFileWidget) {
+                                const filePath = data.subfolder ? `${data.subfolder}/${data.name}` : data.name;
+                                activeNode._maskFileWidget.value = filePath;
+                                activeNode.setDirtyCanvas(true, true);
+                            }
+                        }
+                    } catch (e) {
+                        console.log(e)
+                        // 静默处理，避免干扰正常的网络请求
+                    }
+                }
+                return response;
             };
         }
     }

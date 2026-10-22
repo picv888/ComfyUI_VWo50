@@ -1,9 +1,12 @@
 from .vWo50_util import NODE_CLASS_MAPPINGS as util_NCM
 from .vWo50_type import NODE_CLASS_MAPPINGS as type_NCM
+from .vWo50_image import NODE_CLASS_MAPPINGS as image_NCM
+
 
 NODE_CLASS_MAPPINGS = {
     **util_NCM,
     **type_NCM,
+    **image_NCM,
 }
 
 
